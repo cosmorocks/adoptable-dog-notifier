@@ -12,26 +12,22 @@ import time
 URL = "https://www.luckydoganimalrescue.org/adopt"
 
 def get_dog_data(driver):
-    # elementxpath = driver.find_element(By.XPATH("//table[@class='views-table']"))
     # Get the HTML content after the table is loaded
     html_content = driver.page_source
     soup = BeautifulSoup(html_content, 'lxml')
-    
-    # Adjust the selector based on the actual structure of the website
-    dog_rows = soup.select('tr.odd, tr.even')
+    dog_rows = soup.select('tr.odd, tr.even') # Selecting all table rows with dogs (one table row = one dog)
     return dog_rows
 
-def main():
-    driver = webdriver.Safari()
+def filter_to_dog(driver):
     driver.get(URL)
 
     WebDriverWait(driver, 5).until(
-        EC.presence_of_element_located(By.XPATH, "//select[@id='edit-field-an-species-value']")
+        EC.presence_of_element_located((By.XPATH, "//select[@id='edit-field-an-species-value']"))
     )
-
     animal_type_dropdown = driver.find_element(By.XPATH, "//select[@id='edit-field-an-species-value']")
     animal_type_dropdown.click()
-    dog_option = driver.find_element(By.XPATH,"//option[@value='Dog']")
+
+    dog_option = driver.find_element(By.XPATH, "//option[@value='Dog']")
     dog_option.click()
 
     filter_submit_btn = driver.find_element(By.XPATH, "//input[@id='edit-submit-adoptable-animals']")
@@ -39,12 +35,21 @@ def main():
 
     time.sleep(2)
 
+    print(f"Filtered to dog.")
+
+def main():
+    driver = webdriver.Safari()
+
+    filter_to_dog(driver)
+
     dog_list = get_dog_data(driver)
 
     for dog in dog_list:
         print(dog)
         print("\n")
         print("\n")
+
+    driver.quit()
 
 if __name__ == "__main__":
     main()
